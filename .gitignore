@@ -1,0 +1,52 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+bun.lockb
+bun.lock
+
+# Production / Builds
+dist
+dist-ssr
+build
+out
+.next
+
+# Capacitor / Mobile specific
+# We keep the 'android' folder because it contains your project config,
+# but we ignore the heavy build artifacts inside it.
+android/app/build
+android/app/src/main/assets/public
+android/app/src/main/res/drawable-port-*
+android/app/src/main/res/drawable-land-*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor / IDE
+.vscode
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+.eslintcache
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS Files
+Thumbs.db
+desktop.ini
