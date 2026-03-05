@@ -125,6 +125,7 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
@@ -142,6 +143,25 @@
       6px 6px 14px 0 var(--neu-shadow-dark),
       -6px -6px 14px 0 var(--neu-shadow-light);
     border: none;
+    transition: all 0.2s ease-out;
+  }
+
+  /* Neumorphic interactive element (buttons) */
+  .glass-button {
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    box-shadow:
+      6px 6px 14px 0 var(--neu-shadow-dark),
+      -6px -6px 14px 0 var(--neu-shadow-light);
+    border: none;
+    transition: all 0.15s ease-out;
+  }
+
+  .glass-button:active {
+    box-shadow:
+      inset 4px 4px 10px 0 var(--neu-shadow-inset-dark),
+      inset -4px -4px 10px 0 var(--neu-shadow-inset-light);
+    transform: scale(0.97);
   }
 
   /* Neumorphic inset / pressed */

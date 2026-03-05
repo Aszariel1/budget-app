@@ -1,5 +1,6 @@
 import { Home, ShoppingBag, PiggyBank } from "lucide-react";
 import { CategoryName } from "@/lib/budget";
+import { hapticImpact } from "@/lib/haptics";
 
 interface CategoryCardProps {
   name: CategoryName;
@@ -30,10 +31,15 @@ const selectedBorder: Record<CategoryName, string> = {
 
 export default function CategoryCard({ name, amount, currency, isSelected, onClick, isSaved }: CategoryCardProps) {
 
+  const handleClick = () => {
+    hapticImpact();
+    onClick();
+  };
+
   return (
     <button
-      onClick={onClick}
-      className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-2xl glass-card transition-all duration-200 ${
+      onClick={handleClick}
+      className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-2xl glass-button transition-all duration-200 ${
         isSelected ? selectedBorder[name] : ""
       }`}
     >

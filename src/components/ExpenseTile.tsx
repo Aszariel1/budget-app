@@ -1,5 +1,10 @@
 import { Expense, CategoryName } from "@/lib/budget";
-import { Home, ShoppingBag, PiggyBank, Zap, ShoppingCart, Bus, Wine, Tv, Shirt, CreditCard, Trash2, ArrowRightLeft } from "lucide-react";
+import {
+  Home, ShoppingBag, PiggyBank, Zap, ShoppingCart, Bus,
+  Wine, Tv, Shirt, CreditCard, Trash2, ArrowRightLeft,
+  Dumbbell, Utensils, Heart, Star, Tag, Gift, Car, Coffee,
+  Gamepad, Scissors, Briefcase
+} from "lucide-react";
 
 interface ExpenseTileProps {
   expense: Expense;
@@ -7,6 +12,7 @@ interface ExpenseTileProps {
   onDelete: (id: string) => void;
 }
 
+// Extended map for better variety and "Smart Matching"
 const subcatIcons: Record<string, React.ReactNode> = {
   Rent: <Home className="w-4 h-4" />,
   Utilities: <Zap className="w-4 h-4" />,
@@ -19,6 +25,31 @@ const subcatIcons: Record<string, React.ReactNode> = {
   "Manual Add": <PiggyBank className="w-4 h-4" />,
   "Transfer from Needs": <ArrowRightLeft className="w-4 h-4" />,
   "Transfer from Wants": <ArrowRightLeft className="w-4 h-4" />,
+  // Common keywords for custom entries
+  Gym: <Dumbbell className="w-4 h-4" />,
+  Fitness: <Dumbbell className="w-4 h-4" />,
+  Food: <Utensils className="w-4 h-4" />,
+  Restaurant: <Utensils className="w-4 h-4" />,
+  Health: <Heart className="w-4 h-4" />,
+  Gift: <Gift className="w-4 h-4" />,
+  Car: <Car className="w-4 h-4" />,
+  Coffee: <Coffee className="w-4 h-4" />,
+  Game: <Gamepad className="w-4 h-4" />,
+  Work: <Briefcase className="w-4 h-4" />,
+};
+
+const getIcon = (name: string) => {
+  // 1. Direct match
+  if (subcatIcons[name]) return subcatIcons[name];
+
+  // 2. Keyword match (case insensitive)
+  const lower = name.toLowerCase();
+  for (const key of Object.keys(subcatIcons)) {
+    if (lower.includes(key.toLowerCase())) return subcatIcons[key];
+  }
+
+  // 3. Fallback
+  return <Tag className="w-4 h-4" />;
 };
 
 const catColors: Record<CategoryName, string> = {
@@ -29,7 +60,7 @@ const catColors: Record<CategoryName, string> = {
 
 export default function ExpenseTile({ expense, currency, onDelete }: ExpenseTileProps) {
   const symbol = currency;
-  const icon = subcatIcons[expense.subcat] || <ShoppingBag className="w-4 h-4" />;
+  const icon = getIcon(expense.subcat);
   const isGain = expense.cat === "Savings";
 
   return (
@@ -41,15 +72,17 @@ export default function ExpenseTile({ expense, currency, onDelete }: ExpenseTile
         <p className="text-sm font-semibold text-foreground truncate">{expense.subcat}</p>
         <p className="text-[11px] text-muted-foreground">{expense.date}</p>
       </div>
-      <span className={`text-sm font-bold shrink-0 ${isGain ? "text-success" : "text-destructive"}`}>
-        {isGain ? "+" : "-"}{expense.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {symbol}
-      </span>
-      <button
-        onClick={() => onDelete(expense.id)}
-        className="text-muted-foreground hover:text-destructive active:text-destructive transition-colors p-1"
-      >
-        <Trash2 className="w-4 h-4" />
-      </button>
+      <div className="flex flex-col items-end gap-1">
+        <span className={`text-sm font-bold shrink-0 ${isGain ? "text-success" : "text-destructive"}`}>
+          {isGain ? "+" : "-"}{expense.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })} {symbol}
+        </span>
+        <button
+          onClick={() => onDelete(expense.id)}
+          className="text-muted-foreground hover:text-destructive active:text-destructive transition-colors p-1"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
     </div>
   );
 }
