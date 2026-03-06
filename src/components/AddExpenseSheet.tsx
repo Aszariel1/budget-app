@@ -1,32 +1,52 @@
-import { useState } from "react";
-import { SUBCATS, CategoryName } from "@/lib/budget";
+import { useState, useEffect } from "react";
+import { CategoryName, getAllSubcats, BudgetState } from "@/lib/budget";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { hapticImpact, hapticSuccess } from "@/lib/haptics";
+import { Plus } from "lucide-react";
 
 interface AddExpenseSheetProps {
   open: boolean;
   onClose: () => void;
   onAdd: (amount: number, cat: CategoryName, subcat: string) => void;
+  state: BudgetState;
+  onAddCustomSubcat: (cat: CategoryName, subcat: string) => void;
 }
 
-export default function AddExpenseSheet({ open, onClose, onAdd }: AddExpenseSheetProps) {
+export default function AddExpenseSheet({ open, onClose, onAdd, state, onAddCustomSubcat }: AddExpenseSheetProps) {
   const [amount, setAmount] = useState("");
   const [cat, setCat] = useState<CategoryName>("Needs");
-  const [subcat, setSubcat] = useState(SUBCATS["Needs"][0]);
+  const allSubcats = getAllSubcats(state);
+  const [subcat, setSubcat] = useState(allSubcats["Needs"][0]);
+  const [isAddingCustom, setIsAddingCustom] = useState(false);
+  const [customSubcatName, setCustomSubcatName] = useState("");
+
+  // Update subcat when category changes
+  useEffect(() => {
+    setSubcat(allSubcats[cat][0]);
+    setIsAddingCustom(false);
+  }, [cat]);
 
   const handleCatChange = (newCat: CategoryName) => {
     hapticImpact();
     setCat(newCat);
-    setSubcat(SUBCATS[newCat][0]);
   };
 
   const handleSubmit = () => {
     const val = parseFloat(amount);
     if (!val || val <= 0) return;
 
-    hapticSuccess(); // Trigger success vibration
-    onAdd(val, cat, subcat);
+    let finalSubcat = subcat;
+
+    if (isAddingCustom && customSubcatName.trim()) {
+      finalSubcat = customSubcatName.trim();
+      onAddCustomSubcat(cat, finalSubcat);
+    }
+
+    hapticSuccess();
+    onAdd(val, cat, finalSubcat);
     setAmount("");
+    setCustomSubcatName("");
+    setIsAddingCustom(false);
     onClose();
   };
 
@@ -45,7 +65,7 @@ export default function AddExpenseSheet({ open, onClose, onAdd }: AddExpenseShee
         <div className="space-y-5 pt-4">
           {/* Category pills */}
           <div className="flex gap-2">
-            {(Object.keys(SUBCATS) as CategoryName[]).map((c) => (
+            {(Object.keys(allSubcats) as CategoryName[]).map((c) => (
               <button
                 key={c}
                 onClick={() => handleCatChange(c)}
@@ -58,19 +78,54 @@ export default function AddExpenseSheet({ open, onClose, onAdd }: AddExpenseShee
             ))}
           </div>
 
-          {/* Subcategory */}
-          <select
-            value={subcat}
-            onChange={(e) => {
-              hapticImpact();
-              setSubcat(e.target.value);
-            }}
-            className="w-full bg-secondary text-foreground text-sm rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary appearance-none active:scale-[0.99] transition-transform"
-          >
-            {SUBCATS[cat].map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
+          {/* Subcategory Selection */}
+          <div className="space-y-3">
+            {!isAddingCustom ? (
+              <div className="flex gap-2">
+                <select
+                  value={subcat}
+                  onChange={(e) => {
+                    hapticImpact();
+                    setSubcat(e.target.value);
+                  }}
+                  className="flex-1 bg-secondary text-foreground text-sm rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary appearance-none active:scale-[0.99] transition-transform"
+                >
+                  {allSubcats[cat].map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => {
+                    hapticImpact();
+                    setIsAddingCustom(true);
+                  }}
+                  className="w-12 h-12 bg-secondary text-muted-foreground flex items-center justify-center rounded-2xl active:scale-90 transition-transform"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="Custom name..."
+                  value={customSubcatName}
+                  onChange={(e) => setCustomSubcatName(e.target.value)}
+                  className="flex-1 bg-secondary text-foreground text-sm rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
+                />
+                <button
+                  onClick={() => {
+                    hapticImpact();
+                    setIsAddingCustom(false);
+                  }}
+                  className="px-4 bg-secondary text-muted-foreground text-xs font-semibold rounded-2xl active:scale-90 transition-transform"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Amount */}
           <input
